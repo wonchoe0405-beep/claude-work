@@ -202,8 +202,11 @@ function blankPool(a, b) {
   }
   return pool;
 }
+function missingDefs(a, b) { return rows.filter((r) => inRange(r, a, b) && !r.def).length; }
 function maxQuestions(a, b, m) {
   if (a > b) return 0;
+  // 영영 풀이 연결은 범위의 모든 단어에 풀이가 있을 때만(어휘끝이 아닌 단어장은 빈칸 문제만).
+  if (m === "match" && missingDefs(a, b)) return 0;
   return m === "match" ? Math.floor(matchPool(a, b).length / 5) : blankPool(a, b).length;
 }
 function posTags(text) { return new Set([...text.matchAll(/\[(n|v|adj|adv|pron|prep|conj|interj)\]/g)].map((x) => x[1])); }
@@ -237,6 +240,8 @@ function makeOne(pool, choices, avoid) {
   return { options, answer, word: pick.wrong.word, def: pick.wrong.def };
 }
 function makeMatch(a, b, count) {
+  const missing = missingDefs(a, b);
+  if (missing) throw new Error(`이 범위의 ${missing}개 단어에 영영 풀이가 없습니다. 영영 풀이 문제는 어휘끝 단어로만 만들 수 있으니 빈칸 문제 유형을 고르세요.`);
   const pool = matchPool(a, b);
   const max = Math.floor(pool.length / 5);
   if (pool.length < 6) throw new Error(`이 범위에는 중복 없는 단어가 ${pool.length}개뿐입니다. 한 문제에 6개 이상 필요합니다.`);
@@ -299,7 +304,9 @@ function refreshLimit() {
   if (a > b) { $("limit").textContent = "시작 단원이 끝 단원보다 큽니다."; return 0; }
   const max = maxQuestions(a, b, mode);
   $("limit").innerHTML = "";
-  if (max < 1) { $("limit").textContent = mode === "match" ? "이 범위에는 단어가 모자랍니다. 한 문제에 중복 없는 단어 5개가 필요합니다." : "이 범위에는 한국어 뜻이 있는 단어가 없습니다."; }
+  const missing = mode === "match" ? missingDefs(a, b) : 0;
+  if (missing) { $("limit").textContent = `이 범위의 ${missing}개 단어에 영영 풀이가 없어 영영 풀이 문제를 만들 수 없습니다. 영영 풀이 문제는 어휘끝 단어만 됩니다. 빈칸 문제 유형을 고르세요.`; }
+  else if (max < 1) { $("limit").textContent = mode === "match" ? "이 범위에는 단어가 모자랍니다. 한 문제에 중복 없는 단어 5개가 필요합니다." : "이 범위에는 한국어 뜻이 있는 단어가 없습니다."; }
   else { $("limit").append("단원 ", `${lo}–${hi}`, " 중 선택 범위에서 최대 ", el("strong", "", `${max}문제`), "까지 만들 수 있습니다."); }
   $("count").max = String(Math.max(1, max));
   const n = parseInt($("count").value, 10);
@@ -440,6 +447,7 @@ $("csv").addEventListener("change", async (ev) => {
     });
     if (!parsed.length) throw new Error("CSV에 단어가 없습니다.");
     rows = parsed; sourceName = file.name;
+    if (mode === "match" && rows.some((r) => !r.def)) setMode("en2ko");
     questions = []; reviewed = [];
     renderSource(); refreshLimit(); render();
     $("dock-note").textContent = `${file.name}에서 ${rows.length}단어를 불러왔습니다.`;

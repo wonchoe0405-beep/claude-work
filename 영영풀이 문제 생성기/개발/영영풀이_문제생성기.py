@@ -6,19 +6,11 @@
 """
 
 import csv
-import json
-import os
-import queue
 import random
 import re
 import sys
 import tempfile
-import threading
 import tkinter as tk
-import urllib.error
-import urllib.parse
-import urllib.request
-from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 
@@ -26,7 +18,6 @@ import pymupdf as fitz
 
 
 BASE = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parent))
-CACHE_PATH = Path(os.environ.get("LOCALAPPDATA", Path.home())) / "영영풀이 문제 생성기" / "영영풀이_사전캐시.json"
 # 어휘끝 수능편 1,572단어의 영영 풀이. 교재의 한국어 뜻에 맞춰 쓰고 Cambridge 사전과 대조했다.
 BUILTIN_PATH = BASE / "어휘끝_수능편_영영풀이.csv"
 MATCH, EN_TO_KO, KO_TO_EN = "match", "en2ko", "ko2en"
@@ -50,8 +41,6 @@ COMMON_WORDS = {"about", "after", "again", "being", "could", "every", "having", 
 CIRCLED = "①②③④⑤"
 SENSE_SPLIT_RE = re.compile(r";\s*(?=\[)")
 POS_TAG_RE = re.compile(r"^\[([a-z]+)\]")
-PAREN_LEAD_RE = re.compile(r"^\([^()]*\)\s*")
-BRACKET_TAIL_RE = re.compile(r"\s*\[[^\]]*\]\s*$")
 PDF_INK = (0.098, 0.239, 0.263)
 PDF_GOLD = (0.773, 0.659, 0.459)
 PDF_BODY = (0.118, 0.149, 0.157)
@@ -82,7 +71,8 @@ def builtin_definitions():
 def read_words(path):
     """단어장을 (단원, 단어, 영영 풀이, 난이도, 한국어 뜻) 목록으로 읽는다.
 
-    영영 풀이가 비어 있는 단어는 내장 풀이로 채우고, 그래도 없으면 비워 둔다(문제 만들 때 온라인 조회).
+    영영 풀이가 비어 있는 단어는 어휘끝 내장 풀이로 채운다. 내장 풀이에도 없는 단어(다른 단어장)는
+    풀이가 비고, 그 단어장으로는 빈칸 문제만 만든다.
     """
     builtin = builtin_definitions()
     return [
@@ -228,110 +218,6 @@ def _headword_size(sizes, word_sizes):
     return best
 
 
-def limit_senses(text, max_senses=2, max_chars=135):
-    """다의어는 사전 순서(자주 쓰이는 뜻 우선)로 앞 2개만 남기고, 사용역 괄호·출처 대괄호는 걷어낸다."""
-    if not text:
-        return ""
-    kept = []
-    for chunk in SENSE_SPLIT_RE.split(text):
-        chunk = chunk.strip()
-        if not chunk:
-            continue
-        tag = POS_TAG_RE.match(chunk)
-        label, body = (tag.group(1), chunk[tag.end():].strip()) if tag else ("", chunk)
-        while True:
-            trimmed = PAREN_LEAD_RE.sub("", body)
-            if trimmed == body:
-                break
-            body = trimmed
-        body = BRACKET_TAIL_RE.sub("", body).strip(" ;.")
-        if len(body) < 8:
-            continue
-        if len(body) > max_chars:
-            cut = body[:max_chars]
-            pivot = max(cut.rfind("; "), cut.rfind(", "), cut.rfind(" "))
-            body = cut[:pivot].rstrip(" ,;") + "..."
-        kept.append(f"[{label}] {body}" if label else body)
-        if len(kept) >= max_senses:
-            break
-    return "; ".join(kept)
-
-
-def fetch_definitions(word):
-    """Datamuse 풀이 중 자주 쓰이는 앞쪽 뜻 2개만 가져온다."""
-    query = urllib.parse.urlencode({"sp": word, "md": "d", "max": 1})
-    request = urllib.request.Request(
-        f"https://api.datamuse.com/words?{query}",
-        headers={"User-Agent": "VocabularyMatchingQuiz/1.0", "Accept": "application/json"},
-    )
-    try:
-        with urllib.request.urlopen(request, timeout=12) as response:
-            result = json.load(response)
-    except (urllib.error.URLError, TimeoutError, OSError) as exc:
-        raise ValueError(f"영어 사전 연결에 실패했습니다: {exc}") from exc
-    if not result or result[0].get("word", "").casefold() != word.casefold():
-        return ""
-    meanings = []
-    seen = set()
-    for item in result[0].get("defs", []):
-        part, separator, definition = item.partition("\t")
-        if not separator:
-            continue
-        definition = f"[{part}] {definition.strip()}"
-        if definition.casefold() not in seen:
-            meanings.append(definition)
-            seen.add(definition.casefold())
-    return limit_senses("; ".join(meanings))
-
-
-def resolve_definitions(rows, first_day, last_day, difficulty, count, cache_path=CACHE_PATH, progress=None, rng=None):
-    """선택 범위에서 필요한 만큼만 검색하고 재조회는 디스크 캐시로 줄인다."""
-    rng = rng or random.Random()
-    candidates = []
-    seen_words = set()
-    for row in rows:
-        day, word, _, level, _ = row
-        if first_day <= day <= last_day and (difficulty == 0 or difficulty == level) and word.casefold() not in seen_words:
-            candidates.append(row)
-            seen_words.add(word.casefold())
-    needed = max(6, count * 5)
-    if len(candidates) < needed:
-        raise ValueError(f"선택한 범위에 중복 없는 단어가 {len(candidates)}개입니다. {count}문제에는 최소 {needed}개가 필요합니다.")
-    try:
-        cache = json.loads(cache_path.read_text(encoding="utf-8"))
-    except (OSError, ValueError):
-        cache = {}
-    rng.shuffle(candidates)
-    resolved = []
-    seen_definitions = set()
-    looked_up = 0
-    target = min(len(candidates), needed + 15)
-    with ThreadPoolExecutor(max_workers=5) as executor:
-        for offset in range(0, len(candidates), max(6, target)):
-            batch = candidates[offset:offset + max(6, target)]
-            pending = [row[1] for row in batch if not row[2] and row[1].casefold() not in cache]
-            for word, definition in zip(pending, executor.map(fetch_definitions, pending)):
-                cache[word.casefold()] = definition
-                looked_up += 1
-                if progress:
-                    progress(looked_up)
-            for day, word, definition, level, korean in batch:
-                definition = limit_senses(definition or cache.get(word.casefold(), ""))
-                if definition and definition.casefold() not in seen_definitions:
-                    resolved.append((day, word, definition, level, korean))
-                    seen_definitions.add(definition.casefold())
-            if len(resolved) >= target:
-                break
-    if looked_up:
-        cache_path.parent.mkdir(parents=True, exist_ok=True)
-        temporary = cache_path.with_suffix(".tmp")
-        temporary.write_text(json.dumps(cache, ensure_ascii=False), encoding="utf-8")
-        temporary.replace(cache_path)
-    if len(resolved) < needed:
-        raise ValueError(f"사전 풀이가 있는 단어가 {len(resolved)}개뿐입니다. 단원 범위를 늘리거나 문제 수를 줄이세요.")
-    return resolved
-
-
 def blank_pool(rows, first_day, last_day, difficulty):
     """빈칸 문제에 쓸 (단어, 한국어 뜻) 목록. 단어나 뜻이 겹치면 정답이 둘이 되므로 한 번만 넣는다."""
     pool = []
@@ -363,26 +249,28 @@ def make_blank_questions(rows, first_day, last_day, difficulty, count, rng=None)
 def max_questions(rows, first_day, last_day, difficulty, mode=MATCH):
     """선택 범위에서 중복 없이 만들 수 있는 최대 문항 수.
 
-    영영 풀이 연결은 한 문제에 단어 5개가 들어간다. 풀이가 아직 없는 단어는 사전 조회 전이라
-    실제로는 줄어들 수 있으므로 상한으로만 센다. 빈칸 문제는 한 문제에 단어 하나다.
+    영영 풀이 연결은 한 문제에 단어 5개가 들어가고, 범위의 모든 단어에 영영 풀이가 있어야 한다
+    (어휘끝이 아닌 단어장은 풀이가 없어 0). 빈칸 문제는 한 문제에 단어 하나다.
     """
     if mode != MATCH:
         return len(blank_pool(rows, first_day, last_day, difficulty))
+    selected = [row for row in rows if first_day <= row[0] <= last_day and not (difficulty and difficulty != row[3])]
+    if not selected or not all(row[2] for row in selected):
+        return 0
     words = set()
     definitions = set()
-    for day, word, definition, level, _ in rows:
-        if not (first_day <= day <= last_day) or (difficulty and difficulty != level):
+    for _, word, definition, _, _ in selected:
+        key, meaning = word.casefold(), definition.casefold()
+        if key in words or meaning in definitions:
             continue
-        key = word.casefold()
-        if key in words:
-            continue
-        if definition:
-            meaning = definition.casefold()
-            if meaning in definitions:
-                continue
-            definitions.add(meaning)
         words.add(key)
+        definitions.add(meaning)
     return len(words) // 5
+
+
+def missing_definitions(rows, first_day, last_day, difficulty):
+    """범위 안에서 영영 풀이가 없는 단어 수."""
+    return sum(1 for row in rows if first_day <= row[0] <= last_day and not (difficulty and difficulty != row[3]) and not row[2])
 
 
 def make_questions(rows, first_day, last_day, difficulty, count, rng=None):
@@ -753,8 +641,6 @@ class App:
         self.questions = []
         self.reviewed = []
         self.review_window = None
-        self.busy = False
-        self.messages = queue.Queue()
         self.file_label = tk.StringVar(value="단어장을 불러오세요")
         self.source_label = tk.StringVar(value="파일을 선택하면 단원과 단어 수를 표시합니다.")
         self.review_label = tk.StringVar(value="문제를 만든 뒤 검토해 주세요")
@@ -795,7 +681,13 @@ class App:
         right.pack(side="left", fill="both", expand=True)
 
         self.section(left, "01  단어장", "PDF 또는 CSV 파일을 불러옵니다")
-        ttk.Button(left, text="파일 선택", style="Quiet.TButton", command=self.open_file).pack(anchor="w", fill="x", pady=(4, 10))
+        sources = tk.Frame(left, bg="#FFFFFF")
+        sources.pack(fill="x", pady=(4, 10))
+        sources.grid_columnconfigure(0, weight=1)
+        sources.grid_columnconfigure(1, weight=1)
+        ttk.Button(sources, text="다른 단어장 열기", style="Quiet.TButton", command=self.open_file).grid(row=0, column=0, sticky="ew", padx=(0, 6))
+        self.builtin_button = ttk.Button(sources, text="어휘끝 (내장)", style="Quiet.TButton", command=self.load_builtin)
+        self.builtin_button.grid(row=0, column=1, sticky="ew")
         tk.Label(left, textvariable=self.file_label, bg="#FFFFFF", fg="#193D43", font=("Malgun Gothic", 10, "bold"), wraplength=270, justify="left").pack(anchor="w")
         tk.Label(left, textvariable=self.source_label, bg="#FFFFFF", fg="#71817F", font=("Malgun Gothic", 9), wraplength=270, justify="left").pack(anchor="w", pady=(5, 0))
         tk.Frame(left, bg="#E4EAE8", height=1).pack(fill="x", pady=14)
@@ -852,15 +744,20 @@ class App:
         self.output = tk.Text(preview, wrap="word", font=("Malgun Gothic", 10), bg="#FAFBFA", fg="#263D3D", relief="flat", padx=18, pady=16, spacing2=3, spacing3=5, state="disabled", yscrollcommand=scroll.set)
         self.output.pack(side="left", fill="both", expand=True)
         scroll.config(command=self.output.yview)
-        sample = BASE / "예제_단어장.csv"
-        if sample.exists():
-            self.load(sample)
+        # 어휘끝 수능편이 내장되어 있어 켜자마자 바로 출제할 수 있다. 없으면 예제 단어장을 연다.
+        if BUILTIN_PATH.exists():
+            self.load_builtin()
+        elif (BASE / "예제_단어장.csv").exists():
+            self.load(BASE / "예제_단어장.csv")
 
     def section(self, parent, title, subtitle):
         tk.Label(parent, text=title, bg="#FFFFFF", fg="#193D43", font=("Malgun Gothic", 12, "bold")).pack(anchor="w")
         tk.Label(parent, text=subtitle, bg="#FFFFFF", fg="#71817F", font=("Malgun Gothic", 9)).pack(anchor="w", pady=(4, 12))
 
-    def load(self, path):
+    def load_builtin(self):
+        self.load(BUILTIN_PATH, "어휘끝 수능편 (내장)")
+
+    def load(self, path, name=None):
         try:
             rows = read_words(path)
             if not rows:
@@ -879,14 +776,21 @@ class App:
         self.save_exam_button.config(state="disabled")
         self.save_key_button.config(state="disabled")
         self.review_label.set("문제를 만든 뒤 검토해 주세요")
-        self.file_label.set(f"{Path(path).name} ({len(rows)}개)")
+        self.file_label.set(f"{name or Path(path).name} ({len(rows)}개)")
         days = sorted({row[0] for row in rows})
         self.first.set(str(days[0]))
         self.last.set(str(days[-1]))
         missing = sum(not row[2] for row in rows)
         korean = sum(bool(row[4]) for row in rows)
-        self.source_label.set(f"단원 {days[0]}–{days[-1]} · {len(rows)}개 단어 · 한국어 뜻 {korean}개 · 영영 풀이 검색 {missing}개")
-        note = f"영영 풀이 없는 단어 {missing}개는 영영 풀이 문제를 만들 때 온라인 사전에서 검색합니다." if missing else "모든 단어에 영영 풀이가 있어 인터넷 없이 만들 수 있습니다."
+        self.source_label.set(f"단원 {days[0]}–{days[-1]} · {len(rows)}개 단어 · 한국어 뜻 {korean}개 · 영영 풀이 {len(rows) - missing}개")
+        if not missing:
+            note = "세 가지 문제 유형을 모두 만들 수 있습니다."
+        elif korean:
+            note = "어휘끝이 아닌 단어장이라 영영 풀이가 없어, 빈칸 문제(영어 → 한국어, 한국어 → 영어)만 만들 수 있습니다."
+            if self.current_mode() == MATCH:
+                self.mode.set("영어 → 한국어 뜻 쓰기")
+        else:
+            note = "영영 풀이와 한국어 뜻을 모두 찾지 못해 문제를 만들 수 없습니다. 표제어 옆에 한글 뜻이 있는 단어장인지 확인하세요."
         self.status.config(text=f"단원 {days[0]}~{days[-1]}, 단어 {len(rows)}개. {note}")
         self.refresh_limit()
         self.display("단어장을 불러왔습니다. 문제 유형을 고르고 '문제 만들기'를 누르세요.\n\n· 영영 풀이 연결: 다섯 쌍 중 틀린 연결 고르기\n· 영어 → 한국어 뜻 쓰기: 영단어를 보고 뜻 쓰기\n· 한국어 → 영어 단어 쓰기: 뜻을 보고 영단어 쓰기")
@@ -918,12 +822,13 @@ class App:
         mode = self.current_mode()
         self.limit = max_questions(self.rows, first_day, last_day, self.current_level(), mode)
         self.count_box.config(to=max(1, self.limit))
-        if self.limit < 1 and mode != MATCH:
+        missing = missing_definitions(self.rows, first_day, last_day, self.current_level()) if mode == MATCH else 0
+        if missing:
+            self.limit_text.set(f"이 범위의 {missing}개 단어에 영영 풀이가 없어 영영 풀이 문제를 만들 수 없습니다. 영영 풀이 문제는 어휘끝 단어만 됩니다. 빈칸 문제 유형을 고르세요.")
+        elif self.limit < 1 and mode != MATCH:
             self.limit_text.set("이 범위에는 한국어 뜻이 있는 단어가 없습니다. 빈칸 문제는 한국어 뜻이 든 단어장에서만 만들 수 있습니다.")
         elif self.limit < 1:
             self.limit_text.set("이 범위에는 단어가 모자랍니다. 한 문제에 중복 없는 단어 5개가 필요합니다.")
-        elif mode == MATCH and any(not row[2] for row in self.rows):
-            self.limit_text.set(f"최대 {self.limit}문제 — 사전 조회 결과에 따라 줄어들 수 있습니다.")
         else:
             self.limit_text.set(f"최대 {self.limit}문제까지 만들 수 있습니다.")
         self.clamp_count()
@@ -942,8 +847,6 @@ class App:
             self.count.set("1")
 
     def open_file(self):
-        if self.busy:
-            return
         path = filedialog.askopenfilename(filetypes=[("단어장", "*.csv *.pdf"), ("모든 파일", "*.*")])
         if path:
             self.load(path)
@@ -955,8 +858,6 @@ class App:
         self.output.config(state="disabled")
 
     def generate(self):
-        if self.busy:
-            return
         try:
             if self.review_window and self.review_window.winfo_exists():
                 self.review_window.destroy()
@@ -971,61 +872,21 @@ class App:
                 self.questions = make_blank_questions(self.rows, first_day, last_day, level, count)
                 self.show_questions()
                 return
+            missing = missing_definitions(self.rows, first_day, last_day, level)
+            if missing:
+                raise ValueError(f"이 범위의 {missing}개 단어에 영영 풀이가 없습니다. 영영 풀이 문제는 어휘끝 단어로만 만들 수 있으니, 빈칸 문제 유형을 고르세요.")
             limit = max_questions(self.rows, first_day, last_day, level)
             if limit < 1:
                 raise ValueError("이 범위에는 중복 없는 단어가 5개도 되지 않습니다. 단원 범위를 넓히거나 난이도를 '전체'로 바꾸세요.")
             if count > limit:
                 raise ValueError(f"이 범위에서는 최대 {limit}문제까지 만들 수 있습니다. 문제 수를 {limit} 이하로 입력하세요.")
             selected = [row for row in self.rows if first_day <= row[0] <= last_day and (level == 0 or level == row[3])]
-            if not selected:
-                raise ValueError("선택한 단원과 난이도에 단어가 없습니다.")
             self.question_mode = MATCH
-            if all(row[2] for row in selected):
-                self.resolved_rows = selected
-                self.questions = make_questions(selected, first_day, last_day, level, count)
-                self.show_questions()
-                return
-            self.questions = []
-            self.reviewed = []
-            self.review_button.config(state="disabled")
-            self.save_exam_button.config(state="disabled")
-            self.save_key_button.config(state="disabled")
-            self.busy = True
-            self.generate_button.config(state="disabled")
-            self.status.config(text="영어 사전에서 풀이를 찾는 중입니다. 첫 조회에는 인터넷이 필요합니다.")
-            self.display("영영 풀이를 검색 중입니다. 잠시 기다려 주세요.")
-            threading.Thread(target=self.generate_online, args=(selected, first_day, last_day, level, count), daemon=True).start()
-            self.root.after(100, self.poll_messages)
+            self.resolved_rows = selected
+            self.questions = make_questions(selected, first_day, last_day, level, count)
+            self.show_questions()
         except (ValueError, KeyError) as exc:
             messagebox.showerror("문제 생성 오류", str(exc))
-
-    def generate_online(self, rows, first_day, last_day, level, count):
-        try:
-            resolved = resolve_definitions(rows, first_day, last_day, level, count, progress=lambda n: self.messages.put(("progress", n)))
-            questions = make_questions(resolved, first_day, last_day, level, count)
-            self.messages.put(("done", (resolved, questions)))
-        except Exception as exc:
-            self.messages.put(("error", str(exc)))
-
-    def poll_messages(self):
-        try:
-            while True:
-                kind, value = self.messages.get_nowait()
-                if kind == "progress":
-                    self.status.config(text=f"영영 풀이를 검색 중입니다: 새 조회 {value}개")
-                else:
-                    self.busy = False
-                    self.generate_button.config(state="normal")
-                    if kind == "done":
-                        self.resolved_rows, self.questions = value
-                        self.show_questions()
-                    else:
-                        self.status.config(text="문제를 만들지 못했습니다.")
-                        messagebox.showerror("문제 생성 오류", value)
-        except queue.Empty:
-            pass
-        if self.busy:
-            self.root.after(100, self.poll_messages)
 
     def show_questions(self):
         if self.question_mode != MATCH:
@@ -1246,6 +1107,11 @@ def self_test():
     assert words[:2] == ["medieval", "swell"] and "Inspirational Quotes" not in words and "al" not in words, words
     assert heads[0][4] == "중세의; 중세풍의" and heads[1][4] == "붓다, 부풀다; 증가하다", heads[:2]
 
+    # 다른 단어장(영영 풀이 없음, 한국어 뜻 있음): 빈칸 문제만 된다.
+    other = [(1, f"zzword{i}", "", 2, f"뜻{i}") for i in range(12)]
+    assert max_questions(other, 1, 1, 0) == 0 and missing_definitions(other, 1, 1, 0) == 12
+    assert max_questions(other, 1, 1, 0, EN_TO_KO) == 12
+
     # 내장 영영 풀이(어휘끝 수능편)
     builtin = builtin_definitions()
     assert len(builtin) >= 1577 and "medieval" in builtin and "al" not in builtin
@@ -1256,6 +1122,10 @@ def smoke_gui():
     root = tk.Tk()
     root.withdraw()
     app = App(root)
+    # 켜자마자 어휘끝 수능편(내장)이 열린다.
+    assert app.file_label.get().startswith("어휘끝 수능편 (내장) (1577개)"), app.file_label.get()
+    assert (app.first.get(), app.last.get()) == ("1", "53") and app.limit >= 300, (app.first.get(), app.last.get(), app.limit)
+    app.load(BASE / "예제_단어장.csv")
     assert app.limit == 6, app.limit
     assert "최대 6문제" in app.limit_text.get(), app.limit_text.get()
     app.count.set("99")
@@ -1307,14 +1177,16 @@ def smoke_gui():
             key = Path(folder) / f"{mode}_key.pdf"
             save_pdf(exam, app.questions, False, mode)
             save_pdf(key, app.questions, True, mode)
+            # 글자를 낱말 단위로 찍어 추출 텍스트에는 낱말 사이 공백이 빠질 수 있으므로 공백을 지우고 비교한다.
             word, korean = app.questions[0]
+            meaning = re.sub(r"\s+", "", korean.split(",")[0])
             with fitz.open(exam) as pdf:
-                text = "".join(page.get_text() for page in pdf)
-                assert (word if mode == EN_TO_KO else korean.split(",")[0]) in text
-                assert (korean.split(",")[0] if mode == EN_TO_KO else word) not in text
+                text = re.sub(r"\s+", "", "".join(page.get_text() for page in pdf))
+                assert (word if mode == EN_TO_KO else meaning) in text
+                assert (meaning if mode == EN_TO_KO else word) not in text
             with fitz.open(key) as pdf:
-                text = "".join(page.get_text() for page in pdf)
-                assert word in text and korean.split(",")[0] in text and "정답지" in text
+                text = re.sub(r"\s+", "", "".join(page.get_text() for page in pdf))
+                assert word in text and meaning in text and "정답지" in text
     root.destroy()
 
 
