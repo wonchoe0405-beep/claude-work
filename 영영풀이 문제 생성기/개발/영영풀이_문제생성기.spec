@@ -5,7 +5,7 @@ a = Analysis(
     ['영영풀이_문제생성기.py'],
     pathex=[],
     binaries=[],
-    datas=[('예제_단어장.csv', '.'), ('C:/Windows/Fonts/malgun.ttf', '.'), ('C:/Windows/Fonts/malgunbd.ttf', '.')],
+    datas=[('예제_단어장.csv', '.'), ('어휘끝_수능편_영영풀이.csv', '.'),('C:/Windows/Fonts/malgun.ttf', '.'), ('C:/Windows/Fonts/malgunbd.ttf', '.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
