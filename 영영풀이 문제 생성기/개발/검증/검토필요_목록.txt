@@ -1,0 +1,57 @@
+아래 단어는 일반적인 뜻을 찾지 못해 전문 분야 용법이나 표제어가 드러나는 풀이를 썼습니다.
+문제로 내기 전에 한 번 봐주세요. 고치려면 어휘끝_수능편_단어장.csv의 definition 칸을 직접 수정하면 됩니다.
+
+단원  4  hence              [adv] As a result; therefore, for this reason; [adv] In the future from now
+단원  9  immemorial         [adj] That is beyond memory; ancient
+단원  9  antibacterial      [adj] Killing or inhibiting bacteria; [n] A drug having the effect of killing or inhibiting bacteria
+단원  9  antibody           [n] A protein produced by B-lymphocytes that binds to a specific antigen
+단원  9  maladaptive        [adj] Of behavior, showing inadequate or counterproductive mental and behavioral adaptation to a new situation; [adj] Of anatomy, physiology, or behavior, showing inadequate or counterproductive evolutionary adaptation to an environment or its changes
+단원 10  subtitle           [n] Textual versions of the dialogue in films (and similar media such as television or video games), usually displayed at the bottom of...; [v] To create subtitles for the dialogue in a film
+단원 11  prehistoric        [adj] Of or relating to the epoch before written record; [adj] Ancient; very old, outdated, etc
+단원 11  overpopulation     [n] An excessive number of occupants (people, animals, plants, etc.) in a particular area; specifically, when the number of occupants...
+단원 18  antibiotic         [n] Any substance that can destroy or inhibit the growth of bacteria and similar microorganisms, generally transported by the lymphatic...; [adj] Of or relating to antibiotics
+단원 18  bioethics          [n] The branch of ethics that studies the implications of biological and biomedical advances
+단원 18  asteroid           [n] A naturally occurring solid object, which is smaller than a planet and a dwarf planet, larger than a meteoroid and not a comet, that...; [n] In the Solar system, such a body that orbits within the orbit of Jupiter
+단원 20  antonym            [n] A word which has the opposite meaning of another word; [n] A word that describes one end of a scale, while its opposite describes the other end, such as large versus small; a gradable antonym
+단원 22  hypothesis         [n] A tentative conjecture explaining an observation, phenomenon or scientific problem and that can be tested by further observation...; [n] An assumption taken to be true for the purpose of argument or investigation
+단원 23  mediterranean      [adj] Of or pertaining to the Mediterranean Sea and its surrounding region
+단원 23  revolve            [v] To orbit a central point (especially of a celestial body); [v] To rotate around an axis
+단원 24  gene               [n] A segment of DNA or RNA from a cell's or an organism's genome, that may take several forms and thus parameterizes a phenomenon, such...; [n] A theoretical unit of heredity of living organisms which may take several values and (in principle) predetermines a precise trait of...
+단원 25  extinct            [adj] Of an animal or plant species or group of species, a group of people, a family, etc., having no living members, representatives, or...; [adj] Of a geological feature: no longer active; specifically, of a volcano: no longer erupting
+단원 25  biodiversity       [n] The diversity (number and variety of species) of plant and animal life within a region
+단원 27  vowel              [n] A sound produced by the vocal cords with relatively little restriction of the oral cavity, forming the prominent sound of a syllable; [n] A letter or diacritic representing the sound of a vowel; in English, the vowels are a, e, i, o, u, w (rarely), y (sometimes)
+단원 27  dialect            [n] A variety of a language that is characteristic of a particular area, community, or social group, differing from other varieties of the...; [n] A lect (often a regional or minority language) as part of a group or family of languages, especially if they are viewed as a single...
+단원 34  realm              [n] A sphere of knowledge or of influence; a domain; [n] An otherworldly dimension or domain — magical, ethereal, or otherwise
+단원 43  artery             [n] Any of the muscular- and elastic-walled blood vessels forming part of the circulation system by which blood is conveyed away from the...; [n] A major transit corridor in a system of roads, rivers, or railway lines
+단원 43  saliva             [n] A clear, slightly alkaline liquid secreted into the mouth by the salivary glands and mucous glands, consisting of water, mucin...
+단원 43  obesity            [n] The state of being obese
+단원 44  influenza          [n] An acute contagious disease of the upper airways and lungs, caused by a virus, which rapidly spreads around the world in seasonal...
+단원 44  diabetes           [n] Diabetes mellitus; any of a group of metabolic diseases whereby a person (or other animal) has high blood sugar due to an inability to...; [n] Diabetes insipidus; any condition characterized by excessive or incontinent urine, now specifically as caused by impaired production...
+단원 44  handicapped        [n] A disabled person; [adj] Having a handicap
+단원 44  painkiller         [n] A drug that numbs the pain in the body
+단원 45  nostalgia          [n] A bittersweet yearning for the things of the past; [n] A longing for home or familiar surroundings; homesickness
+
+[ 사전 대신 손으로 써 넣은 풀이 ]
+
+단원  8  via                [prep] by way of; passing through; [prep] by means of
+단원  8  utilize            [v] to make practical use of something
+단원  9  counterattack      [n] an attack made in reply to an attack by an enemy; [v] to attack in reply
+단원 23  polar              [adj] relating to the North Pole or the South Pole; [adj] completely opposite in character
+단원 24  mammal             [n] a warm-blooded animal that has hair or fur and feeds its young with milk
+단원 28  criteria           [n] the standards by which something is judged or decided
+단원 33  wellbeing          [n] the state of being comfortable, healthy and happy
+단원 37  lawsuit            [n] a claim brought to a court of law for a decision
+단원 40  textile            [n] a cloth, especially one made by weaving or knitting; [n] the industry that makes cloth
+단원 40  cozy               [adj] warm, comfortable and giving a feeling of being safe
+단원 42  feat               [n] an achievement that requires great skill, strength, or courage
+단원 49  make up for        [v] to do something good in order to balance something bad
+단원 50  pass away          [v] to die
+단원 51  be into            [v] to be very interested in something
+단원 51  put into           [v] to spend time or effort on something
+단원 51  give over to       [v] to use something for one particular purpose
+단원 53  dwell on           [v] to keep thinking or talking about something, especially something unpleasant
+
+[ 수록하지 못한 단어 ]
+
+  al                   — PDF에서 잘못 뽑힌 조각
+  Inspirational Quotes — PDF에서 잘못 뽑힌 조각
