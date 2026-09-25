@@ -1,0 +1,647 @@
+<title>LEXICON 어휘끝 문제지</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,500;0,8..60,700;1,8..60,400&display=swap">
+<style>
+:root {
+  --ink: #193D43;
+  --gold: #B8975C;
+  --gold-soft: #EFE5D2;
+  --ground: #F2F4F3;
+  --surface: #FFFFFF;
+  --text: #1E2628;
+  --muted: #647472;
+  --hair: #DCE3E1;
+  --field: #FFFFFF;
+  --on-ink: #FFFFFF;
+  --wrong: #A4452F;
+  --wrong-soft: #F6E3DD;
+  --ok: #2F6B4F;
+  --ok-soft: #DDEFE5;
+  --sans: "IBM Plex Sans KR", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+  --serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --ink: #9FCBC8; --gold: #D4B98A; --gold-soft: #3A3324; --ground: #0F1B1D; --surface: #172629;
+    --text: #E2EBE9; --muted: #93A5A2; --hair: #2A3C3F; --field: #10201F; --on-ink: #0F1B1D;
+    --wrong: #F0A08A; --wrong-soft: #3D2620; --ok: #8FD1AE; --ok-soft: #1D3A2C;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --ink: #9FCBC8; --gold: #D4B98A; --gold-soft: #3A3324; --ground: #0F1B1D; --surface: #172629;
+  --text: #E2EBE9; --muted: #93A5A2; --hair: #2A3C3F; --field: #10201F; --on-ink: #0F1B1D;
+  --wrong: #F0A08A; --wrong-soft: #3D2620; --ok: #8FD1AE; --ok-soft: #1D3A2C;
+}
+* { box-sizing: border-box; }
+body { background: var(--ground); color: var(--text); font-family: var(--sans); font-size: 15px; line-height: 1.55; }
+.wrap { max-width: 760px; margin: 0 auto; padding-inline: 16px; padding-block: 20px 120px; display: grid; gap: 18px; }
+header.top { display: grid; gap: 4px; padding-block: 6px 4px; }
+.eyebrow { font-size: 11px; letter-spacing: .22em; color: var(--gold); font-weight: 700; }
+h1 { margin: 0; font-size: 26px; color: var(--ink); text-wrap: balance; letter-spacing: -.01em; }
+.lede { margin: 0; color: var(--muted); font-size: 14px; }
+.panel { background: var(--surface); border: 1px solid var(--hair); border-radius: 14px; padding: 18px; display: grid; gap: 16px; }
+.panel h2 { margin: 0; font-size: 13px; color: var(--muted); font-weight: 500; letter-spacing: .04em; }
+.modes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.mode { border: 1.5px solid var(--hair); background: var(--field); color: var(--text); border-radius: 10px; padding: 12px 10px; text-align: left; font: inherit; cursor: pointer; display: grid; gap: 2px; }
+.mode b { font-size: 14px; color: var(--ink); }
+.mode span { font-size: 12px; color: var(--muted); line-height: 1.4; }
+.mode[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.fields { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+label.f { display: grid; gap: 6px; font-size: 12px; color: var(--muted); }
+label.f input { font: inherit; font-size: 17px; font-variant-numeric: tabular-nums; padding: 10px 12px; border-radius: 9px; border: 1px solid var(--hair); background: var(--field); color: var(--text); width: 100%; }
+.limit { font-size: 13px; color: var(--muted); margin: -6px 0 0; }
+.limit strong { color: var(--ink); }
+button.primary, button.quiet { font: inherit; font-weight: 700; border-radius: 10px; padding: 13px 16px; cursor: pointer; border: 0; }
+button.primary { background: var(--ink); color: var(--on-ink); }
+button.quiet { background: var(--gold-soft); color: var(--text); }
+button:disabled { opacity: .45; cursor: not-allowed; }
+button:focus-visible, input:focus-visible, .mode:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.source { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; font-size: 13px; color: var(--muted); }
+.source label.file { color: var(--ink); text-decoration: underline; cursor: pointer; }
+.source input[type=file] { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.bar .status { font-size: 13px; color: var(--muted); }
+.toggle { font-size: 13px; display: inline-flex; gap: 6px; align-items: center; color: var(--text); }
+ol.qs { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.q { background: var(--surface); border: 1px solid var(--hair); border-radius: 12px; padding: 14px 16px; display: grid; gap: 10px; }
+.q.done { border-color: var(--ok); }
+.qhead { display: flex; align-items: center; gap: 10px; }
+.qnum { font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
+.qhead .spacer { flex: 1; height: 1px; background: var(--hair); }
+.opt { display: grid; grid-template-columns: 1.6em minmax(0, 7.5em) minmax(0, 1fr); gap: 4px 10px; align-items: baseline; padding: 4px 6px; border-radius: 7px; }
+.opt.wrong { background: var(--wrong-soft); }
+.opt .n { color: var(--muted); }
+.opt .w { font-family: var(--serif); font-weight: 700; color: var(--ink); overflow-wrap: anywhere; }
+.opt .d { font-family: var(--serif); font-size: 14.5px; overflow-wrap: anywhere; }
+.pos { font-style: italic; color: var(--muted); }
+.sep { color: var(--gold); }
+.fix { font-size: 13px; color: var(--wrong); }
+.qactions { display: flex; gap: 8px; flex-wrap: wrap; }
+.qactions button { font: inherit; font-size: 13px; padding: 7px 12px; border-radius: 8px; border: 1px solid var(--hair); background: var(--field); color: var(--text); cursor: pointer; }
+.qactions button.ok { border-color: var(--ok); background: var(--ok-soft); color: var(--ok); font-weight: 700; }
+.blank { display: grid; grid-template-columns: 2.2em minmax(0, 1fr) minmax(0, 1fr); gap: 10px; align-items: baseline; padding: 11px 4px; border-bottom: 1px solid var(--hair); }
+.blank .num { color: var(--muted); font-variant-numeric: tabular-nums; font-size: 13px; }
+.blank .en { font-family: var(--serif); font-weight: 700; color: var(--ink); font-size: 16px; }
+.blank .ans { border-bottom: 1px solid var(--muted); min-height: 1.4em; color: var(--ok); }
+.blanks { background: var(--surface); border: 1px solid var(--hair); border-radius: 12px; padding: 6px 14px; }
+.dock { position: fixed; left: 0; right: 0; bottom: 0; background: var(--surface); border-top: 1px solid var(--hair); padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px)); }
+.dock .in { max-width: 760px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 8px 10px; }
+.dock .note { grid-column: 1 / -1; font-size: 13px; color: var(--muted); line-height: 1.45; }
+@media (min-width: 640px) { .dock .in { grid-template-columns: 1fr auto auto; align-items: center; } .dock .note { grid-column: auto; } }
+.empty { color: var(--muted); font-size: 14px; text-align: center; padding: 28px 12px; background: var(--surface); border: 1px dashed var(--hair); border-radius: 12px; }
+@media (max-width: 520px) {
+  .modes { grid-template-columns: 1fr; }
+  .opt { grid-template-columns: 1.6em minmax(0, 1fr); }
+  .opt .d { grid-column: 2; }
+  .blank { grid-template-columns: 2.2em minmax(0, 1fr); }
+  .blank .ans { grid-column: 2; }
+}
+@media (prefers-reduced-motion: no-preference) { .q, .mode { transition: border-color .15s; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="eyebrow">LEXICON · WORKSHEET</div>
+    <h1>어휘끝 수능편 문제지</h1>
+    <p class="lede">단원과 문제 유형을 고르면 시험지와 정답지를 PDF로 만들어 줍니다.</p>
+  </header>
+
+  <section class="panel" aria-labelledby="h-set">
+    <h2 id="h-set">출제 조건</h2>
+    <div class="modes" role="group" aria-label="문제 유형">
+      <button class="mode" id="mode-match" data-mode="match" aria-pressed="true"><b>영영 풀이 연결</b><span>다섯 쌍 중 틀린 연결 고르기</span></button>
+      <button class="mode" id="mode-en2ko" data-mode="en2ko" aria-pressed="false"><b>영어 → 한국어</b><span>영단어 보고 뜻 쓰기</span></button>
+      <button class="mode" id="mode-ko2en" data-mode="ko2en" aria-pressed="false"><b>한국어 → 영어</b><span>뜻 보고 영단어 쓰기</span></button>
+    </div>
+    <div class="fields">
+      <label class="f">시작 단원<input id="first" type="number" inputmode="numeric" min="1" value="1"></label>
+      <label class="f">끝 단원<input id="last" type="number" inputmode="numeric" min="1" value="5"></label>
+      <label class="f">문제 수<input id="count" type="number" inputmode="numeric" min="1" value="10"></label>
+    </div>
+    <p class="limit" id="limit"></p>
+    <button class="primary" id="make">문제 만들기</button>
+    <div class="source">
+      <span id="source-label"></span>
+      <label class="file" for="csv">다른 단어장 CSV 열기</label>
+      <input type="file" id="csv" accept=".csv,text/csv">
+      <button class="quiet" id="reset-source" hidden style="padding:6px 10px;font-size:13px">어휘끝으로 되돌리기</button>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-out" style="display:grid;gap:12px">
+    <div class="bar">
+      <h2 id="h-out" style="margin:0;font-size:17px;color:var(--ink)">미리보기</h2>
+      <label class="toggle" id="answer-toggle-wrap"><input type="checkbox" id="show-answers"> 정답 보기</label>
+    </div>
+    <div id="out"></div>
+  </section>
+</div>
+
+<div class="dock">
+  <div class="in">
+    <div class="note" id="dock-note">문제를 만들면 PDF로 저장할 수 있습니다.</div>
+    <button class="quiet" id="pdf-key" disabled>정답지 PDF</button>
+    <button class="primary" id="pdf-exam" disabled>시험지 PDF</button>
+  </div>
+</div>
+
+<script id="font-r" type="text/plain">__FONT_R__</script>
+<script id="font-b" type="text/plain">__FONT_B__</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js"></script>
+<script>
+// [단원, 영단어, 영영 풀이, 한국어 뜻] — 어휘끝 수능편. 교재 뜻 기준 풀이, Cambridge 대조.
+const BUILTIN = __DATA__;
+const CIRCLED = "①②③④⑤";
+const COMMON = new Set(["about","after","again","being","could","every","having","other","their","there","these","thing","things","those","which","while","with","would"]);
+const TITLES = {
+  match: ["영영 풀이 문제", "다음 각 문항에서 단어와 영영 풀이의 연결이 틀린 것을 고르시오."],
+  en2ko: ["영단어 뜻 쓰기", "다음 영단어의 뜻을 우리말로 쓰시오."],
+  ko2en: ["영단어 쓰기", "다음 우리말 뜻에 알맞은 영단어를 쓰시오."],
+};
+const $ = (id) => document.getElementById(id);
+
+let rows = BUILTIN.map(([day, word, def, ko]) => ({ day, word, def, ko }));
+let sourceName = "어휘끝 수능편 (내장)";
+let mode = "match";
+let questions = [];
+let reviewed = [];
+let qMode = "match";
+let usedPool = [];
+let initial = false;
+
+function load(key, fallback) { try { const v = localStorage.getItem(key); return v === null ? fallback : v; } catch { return fallback; } }
+function save(key, value) { try { localStorage.setItem(key, value); } catch {} }
+
+// ---------- 문제 생성 (데스크톱 프로그램과 같은 규칙) ----------
+function shuffle(list) { for (let i = list.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [list[i], list[j]] = [list[j], list[i]]; } return list; }
+function sample(list, n) { return shuffle(list.slice()).slice(0, n); }
+function inRange(r, a, b) { return r.day >= a && r.day <= b; }
+
+function matchPool(a, b) {
+  const pool = [], words = new Set(), defs = new Set();
+  for (const r of rows) {
+    if (!inRange(r, a, b) || !r.def) continue;
+    const k = r.word.toLowerCase(), d = r.def.toLowerCase();
+    if (words.has(k) || defs.has(d)) continue;
+    words.add(k); defs.add(d); pool.push(r);
+  }
+  return pool;
+}
+function blankPool(a, b) {
+  // 뜻이 같은 단어가 둘이면 정답이 둘이 되므로 한 번만 넣는다.
+  const pool = [], words = new Set(), kos = new Set();
+  for (const r of rows) {
+    if (!inRange(r, a, b) || !r.ko) continue;
+    const k = r.word.toLowerCase();
+    if (words.has(k) || kos.has(r.ko)) continue;
+    words.add(k); kos.add(r.ko); pool.push(r);
+  }
+  return pool;
+}
+function maxQuestions(a, b, m) {
+  if (a > b) return 0;
+  return m === "match" ? Math.floor(matchPool(a, b).length / 5) : blankPool(a, b).length;
+}
+function posTags(text) { return new Set([...text.matchAll(/\[(n|v|adj|adv|pron|prep|conj|interj)\]/g)].map((x) => x[1])); }
+function tokens(text) { return new Set((text.toLowerCase().match(/[a-z]{5,}/g) || []).filter((t) => !COMMON.has(t))); }
+function decoyScore(word, def, decoyDef) {
+  // 품사가 다르고 설명 어휘가 덜 겹치는 오답을 우선한다.
+  const sp = posTags(def), dp = posTags(decoyDef);
+  const disjoint = sp.size && dp.size && [...sp].every((p) => !dp.has(p));
+  const st = tokens(def), dt = tokens(decoyDef);
+  let common = 0; for (const t of st) if (dt.has(t)) common++;
+  const overlap = common / Math.max(1, Math.min(st.size, dt.size));
+  const esc = word.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const mentions = new RegExp(`\\b${esc}\\b`).test(decoyDef.toLowerCase());
+  return [disjoint ? 0 : 1, mentions ? 1 : 0, overlap];
+}
+function cmp(x, y) { for (let i = 0; i < x.length; i++) if (x[i] !== y[i]) return x[i] - y[i]; return 0; }
+function makeOne(pool, choices, avoid) {
+  const outside = pool.filter((p) => !choices.includes(p));
+  const cands = [];
+  for (const wrong of choices) {
+    for (const decoy of sample(outside, Math.min(40, outside.length))) {
+      if (avoid && avoid[0] === wrong.word && avoid[1] === decoy.def) continue;
+      cands.push({ score: decoyScore(wrong.word, wrong.def, decoy.def), wrong, decoy });
+    }
+  }
+  if (!cands.length) throw new Error("새 오답을 만들 단어가 부족합니다. 단원 범위를 늘리세요.");
+  const best = cands.reduce((m, c) => (cmp(c.score, m) < 0 ? c.score : m), cands[0].score);
+  const pick = sample(cands.filter((c) => cmp(c.score, best) === 0), 1)[0];
+  const options = shuffle(choices.map((c) => ({ word: c.word, def: c === pick.wrong ? pick.decoy.def : c.def })));
+  const answer = options.findIndex((o) => o.word === pick.wrong.word) + 1;
+  return { options, answer, word: pick.wrong.word, def: pick.wrong.def };
+}
+function makeMatch(a, b, count) {
+  const pool = matchPool(a, b);
+  const max = Math.floor(pool.length / 5);
+  if (pool.length < 6) throw new Error(`이 범위에는 중복 없는 단어가 ${pool.length}개뿐입니다. 한 문제에 6개 이상 필요합니다.`);
+  if (count < 1 || count > max) throw new Error(`이 범위에서는 1~${max}문제까지 만들 수 있습니다.`);
+  const selected = sample(pool, count * 5);
+  let extras = pool.filter((p) => !selected.includes(p));
+  const out = [];
+  for (let i = 0; i < selected.length; i += 5) {
+    const choices = selected.slice(i, i + 5);
+    const q = makeOne(extras.length ? choices.concat(extras) : pool, choices);
+    out.push(q);
+    const used = q.options[q.answer - 1].def;
+    extras = extras.filter((e) => e.def !== used);
+  }
+  usedPool = pool;
+  return out;
+}
+function makeBlank(a, b, count) {
+  const pool = blankPool(a, b);
+  if (!pool.length) throw new Error("이 범위에는 한국어 뜻이 있는 단어가 없습니다.");
+  if (count < 1 || count > pool.length) throw new Error(`이 범위에서는 1~${pool.length}문제까지 만들 수 있습니다.`);
+  return sample(pool, count).map((r) => ({ word: r.word, ko: r.ko }));
+}
+function reroll(index) {
+  const q = questions[index];
+  const byWord = new Map(usedPool.map((p) => [p.word.toLowerCase(), p]));
+  const choices = q.options.map((o) => byWord.get(o.word.toLowerCase()));
+  const visible = new Set(questions.flatMap((x) => x.options.map((o) => o.word.toLowerCase())));
+  const usedDecoys = new Set(questions.filter((x) => x !== q).map((x) => x.options[x.answer - 1].def));
+  const extras = usedPool.filter((p) => !visible.has(p.word.toLowerCase()) && !usedDecoys.has(p.def));
+  questions[index] = makeOne(extras.length ? choices.concat(extras) : usedPool, choices, [q.word, q.options[q.answer - 1].def]);
+  reviewed[index] = false;
+}
+
+// ---------- 화면 ----------
+function defNodes(def) {
+  const frag = document.createDocumentFragment();
+  let prev = "";
+  def.split(/;\s*(?=\[)/).map((s) => s.trim()).filter(Boolean).forEach((sense, i) => {
+    if (i) { const s = document.createElement("span"); s.className = "sep"; s.textContent = " · "; frag.append(s); }
+    const m = sense.match(/^\[([a-z]+)\]\s*/);
+    if (m) {
+      if (m[1] !== prev) { const p = document.createElement("span"); p.className = "pos"; p.textContent = m[1] + " "; frag.append(p); }
+      prev = m[1]; sense = sense.slice(m[0].length);
+    }
+    frag.append(sense.replace(/[. ]+$/, ""));
+  });
+  return frag;
+}
+function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; }
+
+function readRange() {
+  return { a: parseInt($("first").value, 10), b: parseInt($("last").value, 10), n: parseInt($("count").value, 10) };
+}
+function refreshLimit() {
+  const { a, b } = readRange();
+  const days = rows.map((r) => r.day);
+  const lo = Math.min(...days), hi = Math.max(...days);
+  if (!Number.isFinite(a) || !Number.isFinite(b)) { $("limit").textContent = "시작 단원과 끝 단원을 숫자로 입력하세요."; return 0; }
+  if (a > b) { $("limit").textContent = "시작 단원이 끝 단원보다 큽니다."; return 0; }
+  const max = maxQuestions(a, b, mode);
+  $("limit").innerHTML = "";
+  if (max < 1) { $("limit").textContent = mode === "match" ? "이 범위에는 단어가 모자랍니다. 한 문제에 중복 없는 단어 5개가 필요합니다." : "이 범위에는 한국어 뜻이 있는 단어가 없습니다."; }
+  else { $("limit").append("단원 ", `${lo}–${hi}`, " 중 선택 범위에서 최대 ", el("strong", "", `${max}문제`), "까지 만들 수 있습니다."); }
+  $("count").max = String(Math.max(1, max));
+  const n = parseInt($("count").value, 10);
+  if (max >= 1 && Number.isFinite(n) && n > max) $("count").value = String(max);
+  $("make").disabled = max < 1;
+  return max;
+}
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll(".mode").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.mode === m)));
+  save("lexicon.mode", m);
+  refreshLimit();
+}
+function renderSource() {
+  const days = [...new Set(rows.map((r) => r.day))];
+  $("source-label").textContent = `${sourceName} · ${rows.length}단어 · 단원 ${Math.min(...days)}–${Math.max(...days)}`;
+  $("reset-source").hidden = rows.length === BUILTIN.length && sourceName.includes("내장");
+}
+
+function render() {
+  const out = $("out");
+  out.innerHTML = "";
+  const show = $("show-answers").checked;
+  if (!questions.length) {
+    out.append(el("div", "empty", "조건을 정하고 ‘문제 만들기’를 누르세요."));
+    updateDock();
+    return;
+  }
+  if (qMode === "match") {
+    $("answer-toggle-wrap").hidden = false;
+    const list = el("ol", "qs");
+    questions.forEach((q, i) => {
+      const li = el("li", "q" + (reviewed[i] ? " done" : ""));
+      const head = el("div", "qhead");
+      head.append(el("span", "qnum", String(i + 1).padStart(2, "0")), el("span", "spacer"));
+      li.append(head);
+      q.options.forEach((o, k) => {
+        const row = el("div", "opt" + (show && k + 1 === q.answer ? " wrong" : ""));
+        const d = el("span", "d"); d.append(defNodes(o.def));
+        row.append(el("span", "n", CIRCLED[k]), el("span", "w", o.word), d);
+        li.append(row);
+      });
+      if (show) {
+        const fix = el("div", "fix");
+        fix.append(`정답 ${CIRCLED[q.answer - 1]} ${q.word}의 맞는 풀이: `);
+        const d = el("span"); d.style.fontFamily = "var(--serif)"; d.append(defNodes(q.def)); fix.append(d);
+        li.append(fix);
+      }
+      const act = el("div", "qactions");
+      const ok = el("button", reviewed[i] ? "ok" : "", reviewed[i] ? "✓ 검토 완료" : "검토 완료");
+      ok.id = `ok-${i}`;
+      ok.addEventListener("click", () => { reviewed[i] = !reviewed[i]; render(); });
+      const again = el("button", "", "이 문제 다시 뽑기");
+      again.id = `again-${i}`;
+      again.addEventListener("click", () => { try { reroll(i); } catch (e) { $("dock-note").textContent = e.message; } render(); });
+      act.append(ok, again);
+      li.append(act);
+      list.append(li);
+    });
+    out.append(list);
+  } else {
+    $("answer-toggle-wrap").hidden = false;
+    const box = el("div", "blanks");
+    questions.forEach((q, i) => {
+      const row = el("div", "blank");
+      const prompt = qMode === "en2ko" ? el("span", "en", q.word) : el("span", "", q.ko);
+      const answer = qMode === "en2ko" ? q.ko : q.word;
+      const ans = el("span", "ans" + (qMode === "ko2en" ? " en" : ""), show ? answer : "");
+      if (qMode === "ko2en") ans.style.fontSize = "15px";
+      row.append(el("span", "num", String(i + 1).padStart(2, "0")), prompt, ans);
+      box.append(row);
+    });
+    out.append(box);
+  }
+  updateDock();
+}
+function updateDock() {
+  const total = questions.length;
+  const done = reviewed.filter(Boolean).length;
+  const ready = total > 0 && (qMode !== "match" || done === total);
+  $("pdf-exam").disabled = $("pdf-key").disabled = !ready || !downloads;
+  if (!total) $("dock-note").textContent = "문제를 만들면 PDF로 저장할 수 있습니다.";
+  else if (!downloadsChecked) $("dock-note").textContent = "PDF 저장 기능을 확인하는 중입니다…";
+  else if (!downloads) $("dock-note").textContent = "이 화면에서는 PDF 저장을 쓸 수 없습니다. claude.ai에 로그인한 브라우저나 Claude 앱에서 열어 주세요.";
+  else if (qMode === "match" && done < total) $("dock-note").textContent = `검토 ${done}/${total} — 모든 문제를 검토하면 PDF로 저장할 수 있습니다.`;
+  else $("dock-note").textContent = `${total}문제 준비 완료.`;
+}
+
+$("make").addEventListener("click", () => {
+  const { a, b, n } = readRange();
+  try {
+    if (!(a <= b) || !(n >= 1)) throw new Error("단원 범위와 문제 수를 확인하세요.");
+    questions = mode === "match" ? makeMatch(a, b, n) : makeBlank(a, b, n);
+    qMode = mode;
+    reviewed = questions.map(() => qMode !== "match");
+    $("show-answers").checked = false;
+    render();
+    if (!initial) $("h-out").scrollIntoView({ behavior: "smooth", block: "start" });
+  } catch (e) {
+    $("dock-note").textContent = e.message;
+  }
+});
+document.querySelectorAll(".mode").forEach((b) => b.addEventListener("click", () => setMode(b.dataset.mode)));
+["first", "last"].forEach((id) => $(id).addEventListener("input", refreshLimit));
+$("count").addEventListener("change", refreshLimit);
+$("show-answers").addEventListener("change", render);
+
+// CSV: day,word 필수. definition(영영 풀이), korean(한국어 뜻) 선택. 비어 있는 풀이는 내장 풀이로 채운다.
+function parseCsv(text) {
+  const out = []; let row = [], cell = "", q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) { if (c === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else q = false; } else cell += c; }
+    else if (c === '"') q = true;
+    else if (c === ",") { row.push(cell); cell = ""; }
+    else if (c === "\n" || c === "\r") { if (c === "\r" && text[i + 1] === "\n") i++; row.push(cell); out.push(row); row = []; cell = ""; }
+    else cell += c;
+  }
+  if (cell || row.length) { row.push(cell); out.push(row); }
+  return out.filter((r) => r.some((x) => x.trim()));
+}
+$("csv").addEventListener("change", async (ev) => {
+  const file = ev.target.files[0];
+  if (!file) return;
+  try {
+    const table = parseCsv((await file.text()).replace(/^﻿/, ""));
+    const head = table.shift().map((h) => h.trim().toLowerCase());
+    const col = (name) => head.indexOf(name);
+    if (col("day") < 0 || col("word") < 0) throw new Error("CSV 첫 줄에 day,word 열이 필요합니다. definition, korean 열은 선택입니다.");
+    const builtin = new Map(BUILTIN.map(([, w, d, k]) => [w.toLowerCase(), { d, k }]));
+    const parsed = table.map((r, i) => {
+      const day = parseInt(r[col("day")], 10), word = (r[col("word")] || "").trim();
+      if (!(day >= 1) || !word) throw new Error(`CSV ${i + 2}행의 day 또는 word를 확인하세요.`);
+      const b = builtin.get(word.toLowerCase()) || {};
+      const def = (col("definition") >= 0 ? r[col("definition")] || "" : "").trim() || b.d || "";
+      const ko = (col("korean") >= 0 ? r[col("korean")] || "" : "").trim() || b.k || "";
+      return { day, word, def, ko };
+    });
+    if (!parsed.length) throw new Error("CSV에 단어가 없습니다.");
+    rows = parsed; sourceName = file.name;
+    questions = []; reviewed = [];
+    renderSource(); refreshLimit(); render();
+    $("dock-note").textContent = `${file.name}에서 ${rows.length}단어를 불러왔습니다.`;
+  } catch (e) {
+    $("dock-note").textContent = e.message;
+  }
+  ev.target.value = "";
+});
+$("reset-source").addEventListener("click", () => {
+  rows = BUILTIN.map(([day, word, def, ko]) => ({ day, word, def, ko }));
+  sourceName = "어휘끝 수능편 (내장)"; questions = []; reviewed = [];
+  renderSource(); refreshLimit(); render();
+});
+
+// ---------- PDF (A4, 데스크톱 프로그램과 같은 조판) ----------
+const C = {
+  ink: [0.098, 0.239, 0.263], gold: [0.773, 0.659, 0.459], body: [0.118, 0.149, 0.157],
+  muted: [0.443, 0.506, 0.498], hair: [0.855, 0.886, 0.875], faint: [0.760, 0.800, 0.788],
+};
+function b64(id) { const s = atob($(id).textContent.trim()); const u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return u; }
+let fontBytes = null;
+
+async function buildPdf(answers) {
+  const { PDFDocument, rgb, StandardFonts } = PDFLib;
+  const doc = await PDFDocument.create();
+  doc.registerFontkit(fontkit);
+  fontBytes = fontBytes || { r: b64("font-r"), b: b64("font-b") };
+  const F = {
+    kr: await doc.embedFont(fontBytes.r), krb: await doc.embedFont(fontBytes.b),
+    tiro: await doc.embedFont(StandardFonts.TimesRoman), tibo: await doc.embedFont(StandardFonts.TimesRomanBold),
+    tiit: await doc.embedFont(StandardFonts.TimesRomanItalic),
+  };
+  const W = 595.28, H = 841.89, L = 56, R = W - 56, BOTTOM = H - 66, TOP = 62;
+  const [title0, guide0] = TITLES[qMode];
+  const title = answers ? (qMode === "match" ? "영영 풀이 정답지" : `${title0} 정답지`) : title0;
+  const guide = answers ? (qMode === "match" ? "각 문항의 정답 번호와, 오답으로 제시된 단어의 올바른 풀이입니다." : "각 문항의 정답입니다.") : guide0;
+  const stamp = `문항 ${questions.length}개`;
+  let page, y, right = R;
+  const measure = (s, f, size) => F[f].widthOfTextAtSize(s, size);
+  const text = (x, yy, s, f = "kr", size = 10, color = C.body) => { if (s) page.drawText(s, { x, y: H - yy, size, font: F[f], color: rgb(...color) }); return x + measure(s, f, size); };
+  const tracked = (x, yy, s, f = "krb", size = 8, color = C.gold, space = 1.7) => { for (const ch of s) x = text(x, yy, ch, f, size, color) + space; return x; };
+  const rule = (yy, x0 = L, x1 = R, color = C.hair, width = 0.6) => page.drawLine({ start: { x: x0, y: H - yy }, end: { x: x1, y: H - yy }, thickness: width, color: rgb(...color) });
+  function newPage() {
+    page = doc.addPage([W, H]);
+    y = TOP;
+    if (doc.getPageCount() === 1) {
+      tracked(L, y, "LEXICON  ·  WORKSHEET");
+      text(R - measure(stamp, "kr", 8), y, stamp, "kr", 8, C.muted);
+      y += 10; rule(y, L, R, C.gold, 1.2); y += 30;
+      text(L, y, title, "krb", 21, C.ink); y += 20;
+      text(L, y, guide, "kr", 9.5, C.muted);
+      if (!answers) {
+        const field = "이름                          점수";
+        const start = R - measure(field, "kr", 9);
+        text(start, y, field, "kr", 9, C.muted);
+        rule(y + 3.5, start - 6, R, C.hair, 0.5);
+      }
+      y += 15; rule(y); y += 30;
+    } else {
+      const yy = y - 16;
+      text(L, yy, title, "kr", 8, C.muted);
+      tracked(R - 62, yy, "LEXICON", "krb", 7.5, C.faint);
+      rule(yy + 7, L, R, C.hair, 0.5);
+      y = yy + 30;
+    }
+  }
+  const ensure = (need) => { if (y + need > BOTTOM) newPage(); };
+  function runsOf(def) {
+    const runs = []; let prev = "";
+    def.split(/;\s*(?=\[)/).map((s) => s.trim()).filter(Boolean).forEach((sense, i) => {
+      if (i) runs.push(["· ", "tiro", C.gold]);
+      const m = sense.match(/^\[([a-z]+)\]/);
+      if (m) { if (m[1] !== prev) runs.push([m[1] + " ", "tiit", C.muted]); prev = m[1]; sense = sense.slice(m[0].length).trim(); }
+      if (sense) runs.push([sense[0].toLowerCase() + sense.slice(1).replace(/[. ]+$/, "") + " ", "tiro", C.body]);
+    });
+    return runs.length ? runs : [[def, "tiro", C.body]];
+  }
+  function flow(runs, hang, size = 9.6, leading = 13.6, dry = false) {
+    let x = hang, lines = 1;
+    for (const [s, f, color] of runs) {
+      for (const tok of s.match(/\S+\s*/g) || []) {
+        const word = tok.trimEnd();
+        if (x > hang && x + measure(word, f, size) > right) {
+          lines++; x = hang;
+          if (!dry) { y += leading; ensure(leading); }
+        }
+        if (!dry) text(x, y, word, f, size, color);
+        x += measure(tok, f, size);
+      }
+    }
+    return lines;
+  }
+  newPage();
+
+  if (qMode !== "match") {
+    const px = L + 34;
+    const en = qMode === "en2ko";
+    const promptRight = en ? L + 196 : R - 164, blankX = en ? L + 206 : R - 150;
+    const promptRun = (q) => en ? [[q.word, "tibo", C.ink]] : [[q.ko, "kr", C.body]];
+    const answerRun = (q) => en ? [[q.ko, "kr", C.ink]] : [[q.word, "tibo", C.ink]];
+    const lines = (runs, x0, x1) => { right = x1; const n = flow(runs, x0, 10.5, 15, true); right = R; return n; };
+    questions.forEach((q, i) => {
+      const h = Math.max(lines(promptRun(q), px, promptRight), answers ? lines(answerRun(q), blankX + 6, R) : 1) * 15;
+      ensure(h + 14);
+      const top = y;
+      text(L, top, String(i + 1).padStart(2, "0"), "krb", 9.5, C.muted);
+      right = promptRight; flow(promptRun(q), px, 10.5, 15); right = R;
+      const bottom = y; y = top;
+      if (answers) flow(answerRun(q), blankX + 6, 10.5, 15);
+      else rule(top + 4, blankX, R, C.faint, 0.7);
+      y = Math.max(bottom, y) + 8;
+      rule(y, L, R, C.hair, 0.4);
+      y += 18;
+    });
+  } else if (answers) {
+    const wordX = L + 36, defX = L + 152;
+    text(L, y, "정답 일람", "krb", 10.5, C.ink); y += 16;
+    const cols = 10, cell = (R - L) / cols;
+    for (let r0 = 0; r0 < questions.length; r0 += cols) {
+      ensure(40);
+      const top = y;
+      questions.slice(r0, r0 + cols).forEach((q, c) => {
+        const x = L + c * cell;
+        page.drawRectangle({ x, y: H - top - 36, width: cell, height: 36, borderColor: rgb(...C.hair), borderWidth: 0.5 });
+        const label = String(r0 + c + 1).padStart(2, "0");
+        text(x + (cell - measure(label, "tiro", 7.5)) / 2, top + 13, label, "tiro", 7.5, C.muted);
+        const mark = CIRCLED[q.answer - 1];
+        text(x + (cell - measure(mark, "krb", 12)) / 2, top + 30, mark, "krb", 12, C.ink);
+      });
+      y = top + 36;
+    }
+    y += 34;
+    text(L, y, "해설", "krb", 10.5, C.ink); y += 9;
+    rule(y, L, R, C.gold, 1.0); y += 24;
+    questions.forEach((q, i) => {
+      ensure(34);
+      text(L, y, String(i + 1).padStart(2, "0"), "krb", 9.5, C.muted);
+      text(L + 23, y, CIRCLED[q.answer - 1], "kr", 10.5, C.ink);
+      text(wordX + 8, y, q.word, "tibo", 10.4, C.ink);
+      if (wordX + 8 + measure(q.word, "tibo", 10.4) + 12 > defX) { y += 13.6; ensure(13.6); }
+      flow(runsOf(q.def), defX);
+      y += 20;
+    });
+  } else {
+    const wordX = L + 36, defX = L + 152;
+    questions.forEach((q, i) => {
+      const need = 20 + q.options.reduce((s, o) => s + flow(runsOf(o.def), defX, 9.6, 13.6, true) * 13.6 + 1.8 + (wordX + measure(o.word, "tibo", 10.2) + 12 > defX ? 13.6 : 0), 0);
+      if (y + need > BOTTOM && y > TOP + 40) newPage();
+      const label = String(i + 1).padStart(2, "0");
+      text(L, y, label, "krb", 12.5, C.ink);
+      rule(y - 4, L + measure(label, "krb", 12.5) + 12, R, C.hair, 0.7);
+      y += 20;
+      q.options.forEach((o, k) => {
+        ensure(16);
+        text(L + 13, y, CIRCLED[k], "kr", 10, C.ink);
+        text(wordX, y, o.word, "tibo", 10.2, C.ink);
+        if (wordX + measure(o.word, "tibo", 10.2) + 12 > defX) { y += 13.6; ensure(13.6); }
+        flow(runsOf(o.def), defX);
+        y += 15.4;
+      });
+      y += 16;
+    });
+  }
+
+  const pages = doc.getPages();
+  pages.forEach((p, i) => {
+    const base = H - 42;
+    p.drawLine({ start: { x: L, y: H - (base - 13) }, end: { x: R, y: H - (base - 13) }, thickness: 0.5, color: rgb(...C.hair) });
+    p.drawText("LEXICON · 어휘끝 문제지", { x: L, y: H - base, size: 7.5, font: F.kr, color: rgb(...C.muted) });
+    const s = `${i + 1} / ${pages.length}`;
+    p.drawText(s, { x: R - F.tiro.widthOfTextAtSize(s, 8.5), y: H - base, size: 8.5, font: F.tiro, color: rgb(...C.muted) });
+  });
+  return doc.save();
+}
+
+let downloads = null;
+let downloadsChecked = false;
+async function savePdf(answers) {
+  const btn = answers ? $("pdf-key") : $("pdf-exam");
+  btn.disabled = true;
+  $("dock-note").textContent = "PDF를 만드는 중입니다…";
+  try {
+    const bytes = await buildPdf(answers);
+    const title = TITLES[qMode][0];
+    await downloads.save({ filename: `${title}_${answers ? "정답지" : "시험지"}.pdf`, data: new Blob([bytes], { type: "application/pdf" }) });
+    $("dock-note").textContent = `${answers ? "정답지" : "시험지"} PDF를 저장했습니다.`;
+  } catch (e) {
+    const code = e && e.code;
+    $("dock-note").textContent = code === "declined" ? "저장을 취소했습니다." : code === "rate_limited" ? "저장 창이 이미 열려 있습니다. 잠시 후 다시 누르세요." : `PDF를 저장하지 못했습니다: ${e.message || code}`;
+  }
+  btn.disabled = false;
+}
+$("pdf-exam").addEventListener("click", () => savePdf(false));
+$("pdf-key").addEventListener("click", () => savePdf(true));
+
+// 시작: 저장된 유형으로 열고, 예시 문제를 한 번 만들어 둔다.
+setMode(["match", "en2ko", "ko2en"].includes(load("lexicon.mode", "match")) ? load("lexicon.mode", "match") : "match");
+renderSource();
+initial = true; $("make").click(); initial = false;
+(async () => {
+  try { downloads = window.claude && window.claude.use ? await window.claude.use("downloads") : null; } catch { downloads = null; }
+  downloadsChecked = true;
+  updateDock();
+})();
+</script>
