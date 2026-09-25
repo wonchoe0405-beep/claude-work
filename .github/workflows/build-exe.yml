@@ -1,0 +1,42 @@
+name: Windows exe 빌드
+
+on:
+  push:
+    branches: [claude/builtin-definitions-fix]
+    paths: ["영영풀이 문제 생성기/개발/**", ".github/workflows/build-exe.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+        working-directory: 영영풀이 문제 생성기/개발
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 맑은 고딕 확인
+        run: |
+          if (!(Test-Path C:/Windows/Fonts/malgun.ttf)) { throw "malgun.ttf 없음" }
+          if (!(Test-Path C:/Windows/Fonts/malgunbd.ttf)) { throw "malgunbd.ttf 없음" }
+      - run: python -m pip install pyinstaller pymupdf
+      - run: python 영영풀이_문제생성기.py --self-test
+      - run: python 영영풀이_문제생성기.py --smoke-gui
+      - run: python -m PyInstaller --noconfirm 영영풀이_문제생성기.spec
+      - name: exe 안에 내장 풀이와 새 코드가 들어갔는지 확인
+        run: |
+          python -c "from PyInstaller.archive.readers import CArchiveReader as R; a=R('dist/영영풀이_문제생성기_최종.exe'); n=set(a.toc); assert {'어휘끝_수능편_영영풀이.csv','malgun.ttf','예제_단어장.csv'} <= n, n; assert b'en2ko' in a.extract('영영풀이_문제생성기'); print('ok')"
+      - name: 새 exe를 브랜치에 커밋
+        run: |
+          Copy-Item "dist/영영풀이_문제생성기_최종.exe" "../영영풀이_문제생성기_최종.exe" -Force
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add "../영영풀이_문제생성기_최종.exe"
+          git commit -m "새 소스로 exe 다시 빌드"
+          git push
